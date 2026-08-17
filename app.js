@@ -179,12 +179,18 @@
     var f = sfFrames[sfIdx];
     // 网格: -1 -> null
     var z = f.grid.map(function (row) { return row.map(function (v) { return v < 0 ? null : v; }); });
+    // 散点/ATM线的 dte 映射到期限桶标签(与曲面 y 轴类别一致), 原始天数保留在悬浮文本
+    function dteLabel(dte) {
+      var idx = Math.min(Math.floor(dte / 30), SF.dte.length - 1);
+      return SF.dte[idx];
+    }
     var bad = { x: [], y: [], z: [], text: [] };
     f.pts.forEach(function (p) {
-      bad.x.push(p[0]); bad.y.push(p[1]); bad.z.push(p[2]);
+      bad.x.push(p[0]); bad.y.push(dteLabel(p[1])); bad.z.push(p[2]);
       bad.text.push("肇事点 · 等级" + p[3] + "<br>Moneyness " + p[0] + " · 剩余期限 " + p[1] + "天<br>IV " + (p[2] * 100).toFixed(1) + "%");
     });
-    var atmPts = f.atm.map(function (a) { return [1.0, a[0], a[1]]; });
+    var atmPts = f.atm.map(function (a) { return [1.0, dteLabelRaw(a[0]), a[1]]; });
+    function dteLabelRaw(bucketIdx) { return SF.dte[bucketIdx]; }
 
     var data = [{
       type: "surface",

@@ -115,8 +115,20 @@
 
 <!-- ===== 曲面演示 ===== -->
 <section id="surface" class="sec-dark">
-  <h2 class="sec-title">波动率曲面演示（轻量版）</h2>
+  <h2 class="sec-title">波动率曲面演示</h2>
   <p class="sec-desc">危险期 105 交易日中抽取 <span id="sf-count">-</span> 个关键帧（报警起始点及前后帧 + 背景帧）。金色散点 = 肇事点（点位风险≥2级），红线 = ATM 期限结构。拖动滑块或点击播放。</p>
+
+  <div class="core-card">
+    <div class="core-card-left">
+      <div class="core-card-tag">🏆 核心成果 · 完整版</div>
+      <h3>风险期曲面动画：11指标肇事归因 + 风险传导路径 + 做市商行为解释</h3>
+      <p>635 帧全量 3D 动画 · 63 万散点肇事归因 · 传导箭头与标签链（Lv≥2 帧）· 7 机制叙事 · 44 个预警起始点完整图谱解释 · 时间轴悬停摘要</p>
+      <p class="core-card-note">⚠️ 文件 71MB，首次加载需 10-30 秒，请耐心等待；建议电脑端观看</p>
+    </div>
+    <a class="core-card-btn" href="animation_kg.html" target="_blank" rel="noopener">打开完整版动画 →</a>
+  </div>
+
+  <p class="sec-desc" style="margin-top:28px;margin-bottom:14px">以下为轻量预览（196 个关键帧网格化快速回放）</p>
   <div class="surface-ctrl">
     <button id="sf-play" class="play-btn">▶ 播放</button>
     <input type="range" id="sf-slider" min="0" value="0" step="1">
