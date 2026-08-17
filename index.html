@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期权波动率曲面风控智能体 · 成果展示</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+</head>
+<body>
+
+<!-- ===== 导航 ===== -->
+<nav id="nav">
+  <div class="nav-brand">⚡ 波动率曲面风控智能体</div>
+  <div class="nav-links">
+    <a href="#intro">方案介绍</a>
+    <a href="#metrics">回测看板</a>
+    <a href="#timeline">预警时间线</a>
+    <a href="#surface">曲面演示</a>
+    <a href="#kg">传导图谱</a>
+  </div>
+</nav>
+
+<!-- ===== 首页 Hero ===== -->
+<header id="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">第五届中国研究生金融科技创新大赛 · 揭榜挂帅赛题 · 宁证期货命题</div>
+    <h1>基于期权波动率曲面与智能体的<br>量化风控预警系统</h1>
+    <p class="hero-sub">高维曲面实时风险特征提取与分级预警 —— 曲面异常自动检测 · 11指标规则引擎 · 知识图谱传导解释</p>
+    <div class="hero-stats" id="hero-stats">
+      <div class="hstat"><div class="hstat-v" id="hs-prec">--%</div><div class="hstat-k">危险期精确率（门槛≥50%）</div></div>
+      <div class="hstat"><div class="hstat-v" id="hs-rec">--%</div><div class="hstat-k">危险期召回率（门槛≥60%）</div></div>
+      <div class="hstat"><div class="hstat-v" id="hs-lead">--min</div><div class="hstat-k">平均提前时间（门槛≥30min）</div></div>
+      <div class="hstat"><div class="hstat-v" id="hs-cvar">--%</div><div class="hstat-k">CVaR改善率（门槛&gt;10%）</div></div>
+    </div>
+    <div class="hero-badges">
+      <span class="badge badge-green">危险期 4/4 项达标</span>
+      <span class="badge badge-blue">平稳期 3/4 项达标</span>
+      <span class="badge">AG 白银期权 · 15分钟频率</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 方案介绍 ===== -->
+<section id="intro">
+  <h2 class="sec-title">方案介绍</h2>
+  <p class="sec-desc">以期权波动率曲面与 Greeks 数据为输入，智能体融合加权评分与知识规则，输出 0-3 级分级预警；预警触发后进入 CVaR 风控规则测算。系统仅输出风险提示与解释。</p>
+
+  <div class="arch-flow">
+    <div class="arch-step"><div class="arch-num">1</div><div class="arch-t">数据层</div><div class="arch-d">Parquet/CSV 加载 · 插值 · 无套利校验（凸性/蝶式/日历/平价）</div></div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-step"><div class="arch-num">2</div><div class="arch-t">特征层</div><div class="arch-d">30+ 风险特征 · 滚动分位数自适应（无未来函数）</div></div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-step"><div class="arch-num">3</div><div class="arch-t">智能体决策</div><div class="arch-d">加权评分 + 11指标规则引擎（YAML规则库→图谱推理）</div></div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-step"><div class="arch-num">4</div><div class="arch-t">分级预警</div><div class="arch-d">0-3级 · 极端行情模式自适应 · 解除与冷却机制</div></div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-step"><div class="arch-num">5</div><div class="arch-t">回测验证</div><div class="arch-d">精确率/召回率/提前时间/CVaR改善率</div></div>
+  </div>
+
+  <h3 class="sub-title">11 项核心风险指标（7月27日版规则 · 唯一权威）</h3>
+  <div class="ind-grid">
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>凸性违反<div class="ind-d">同期限 IV 对行权价二阶差分&lt;0，违反微笑凸性</div></div>
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>25D偏斜<div class="ind-d">25Delta 偏斜 z-score 突变，尾部预期骤变</div></div>
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>期限倒挂<div class="ind-d">近月 IV 高于远月，违反总方差单调性</div></div>
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>局部异常<div class="ind-d">某点 IV 相对局部邻域残差超 σ 倍数</div></div>
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>曲面扭曲度<div class="ind-d">相对过去20日基准曲面（TPS）的偏离</div></div>
+    <div class="ind-card"><span class="ind-cat">曲面形态</span>曲面变化速率<div class="ind-d">曲面整体变化速率异常</div></div>
+    <div class="ind-card"><span class="ind-cat">Greeks</span>Gamma集中度<div class="ind-d">近月 Gamma 截面 HHI，暴露集中度</div></div>
+    <div class="ind-card"><span class="ind-cat">Greeks</span>Vega集中度<div class="ind-d">Vega 截面 HHI</div></div>
+    <div class="ind-card"><span class="ind-cat">Greeks</span>Delta集中变化率<div class="ind-d">方向性暴露集中与漂移</div></div>
+    <div class="ind-card"><span class="ind-cat">Greeks</span>Greeks极端值<div class="ind-d">Gamma/Vega/Theta 极端分位</div></div>
+    <div class="ind-card"><span class="ind-cat">IV水平</span>ATM IV水平<div class="ind-d">平值隐含波动率水平与变化率</div></div>
+  </div>
+
+  <h3 class="sub-title">预警等级体系</h3>
+  <table class="lvl-table">
+    <tr><th>等级</th><th>标签</th><th>含义</th><th>风险分区间</th><th>处置</th></tr>
+    <tr><td><span class="lvl-pill lv0">0</span></td><td>无预警</td><td>曲面与 Greeks 指标正常</td><td>&lt; 0.45</td><td>—</td></tr>
+    <tr><td><span class="lvl-pill lv1">1</span></td><td>关注</td><td>部分指标进入中高分位</td><td>0.45 - 0.60</td><td>持续观察</td></tr>
+    <tr><td><span class="lvl-pill lv2">2</span></td><td>警告</td><td>重要指标显著异常</td><td>0.60 - 0.78</td><td>进入 CVaR 测算，首次预警后下一日减半持仓</td></tr>
+    <tr><td><span class="lvl-pill lv3">3</span></td><td>危险</td><td>多项核心指标同时极端</td><td>≥ 0.78</td><td>同上 + 极端行情模式确认</td></tr>
+  </table>
+</section>
+
+<!-- ===== 回测看板 ===== -->
+<section id="metrics" class="sec-dark">
+  <h2 class="sec-title">回测指标看板</h2>
+  <p class="sec-desc">口径：7月27日版规则 + A1 策略 + win-adapt（7月30日版说明书）· 标的：AG 白银期权</p>
+  <div class="seg-toggle" id="period-toggle">
+    <button class="seg-btn active" data-p="danger">危险期 20250506-0930</button>
+    <button class="seg-btn" data-p="calm">平稳期 20240601-0715</button>
+  </div>
+
+  <div class="metric-cards" id="metric-cards"></div>
+
+  <div class="chart-row">
+    <div class="chart-box"><h3>测试期预警等级分布</h3><div id="chart-lvldist" class="chart"></div></div>
+    <div class="chart-box"><h3>11指标触发统计（等级×次数）</h3><div id="chart-indstat" class="chart"></div></div>
+  </div>
+  <div class="meta-line" id="metrics-meta"></div>
+</section>
+
+<!-- ===== 预警时间线 ===== -->
+<section id="timeline">
+  <h2 class="sec-title">预警时间线</h2>
+  <p class="sec-desc">测试期逐15分钟：预警等级（色带）· 报警活跃（≥2级，橙色区段）· 风险区间（赛题口径，红色底色）。悬浮查看触发的 2 级以上指标。</p>
+  <div class="seg-toggle" id="tl-toggle">
+    <button class="seg-btn active" data-p="danger">危险期</button>
+    <button class="seg-btn" data-p="calm">平稳期</button>
+  </div>
+  <div id="chart-timeline" class="chart chart-tall"></div>
+</section>
+
+<!-- ===== 曲面演示 ===== -->
+<section id="surface" class="sec-dark">
+  <h2 class="sec-title">波动率曲面演示（轻量版）</h2>
+  <p class="sec-desc">危险期 105 交易日中抽取 <span id="sf-count">-</span> 个关键帧（报警起始点及前后帧 + 背景帧）。金色散点 = 肇事点（点位风险≥2级），红线 = ATM 期限结构。拖动滑块或点击播放。</p>
+  <div class="surface-ctrl">
+    <button id="sf-play" class="play-btn">▶ 播放</button>
+    <input type="range" id="sf-slider" min="0" value="0" step="1">
+    <div class="sf-meta" id="sf-meta"></div>
+  </div>
+  <div id="sf-plot" class="chart chart-surface"></div>
+</section>
+
+<!-- ===== 传导图谱 ===== -->
+<section id="kg">
+  <h2 class="sec-title">风险传导知识图谱</h2>
+  <p class="sec-desc">指标异常 → 传导机制 → 市场后果。点击节点查看含义；5类节点（指标/机制/后果/证据/模式）。</p>
+  <div class="chart-row">
+    <div class="chart-box"><h3>传导图谱（力导向）</h3><div id="chart-kg" class="chart chart-tall"></div></div>
+    <div class="chart-box kg-side">
+      <h3>做市商行为推演</h3>
+      <div class="mm-card" id="mm-narrative"></div>
+      <h3 style="margin-top:18px">示例：完整预警解释</h3>
+      <details id="kg-sample"><summary>展开查看 Level 3 预警完整解释（20230825）</summary><pre id="kg-sample-text"></pre></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>口径：7月27日版预警规则（唯一权威，720/721/改写版已作废）· A1 策略 · win-adapt 自适应 · AG白银期权 · IV 口径 Black-76 + Shibor 重算</p>
+  <p class="disclaim">免责声明：本系统仅输出风险提示与分析解释，不构成任何投资建议，不涉及任何交易指令。</p>
+</footer>
+
+<script src="data/data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
